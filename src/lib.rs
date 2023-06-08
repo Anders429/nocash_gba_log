@@ -4,7 +4,7 @@ use core::{
     fmt,
     fmt::{Display, Write},
 };
-use log::{Log, Metadata, Record, SetLoggerError};
+use log::{LevelFilter, Log, Metadata, Record, SetLoggerError};
 
 /// Location to check for the signature.
 const NOCASH_GBA_SIGNATURE_ADDRESS: *const [u8; 7] = 0x04FFFA00 as *const [u8; 7];
@@ -37,7 +37,7 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &Record) {
-        write!(Writer, "[{}]: {}", record.level(), record.args())
+        write!(Writer, "[{:<5}]: {}\n", record.level(), record.args())
             .unwrap_or_else(|error| panic!("write to no$gba debug buffer failed: {}", error));
     }
 
@@ -72,5 +72,7 @@ pub fn init() -> Result<(), Error> {
     if unsafe { NOCASH_GBA_SIGNATURE_ADDRESS.read_volatile() } != NOCASH_GBA_SIGNATURE {
         return Err(Error::NotRunningInNoCashGba);
     }
-    log::set_logger(&LOGGER).map_err(Into::into)
+    log::set_logger(&LOGGER)
+        .map(|()| log::set_max_level(LevelFilter::Trace))
+        .map_err(Into::into)
 }
