@@ -7,6 +7,9 @@ fn panic_handler(_: &core::panic::PanicInfo) -> ! {
 }
 
 #[no_mangle]
+pub fn __sync_synchronize() {}
+
+#[no_mangle]
 pub fn main() {
     nocash_gba_log::init().expect("could not initialize no$gba logging");
     log::trace!("Hello, world!");

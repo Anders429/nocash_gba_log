@@ -3,6 +3,7 @@
 use core::{
     fmt,
     fmt::{Display, Write},
+    sync::{atomic, atomic::compiler_fence},
 };
 use log::{LevelFilter, Log, Metadata, Record, SetLoggerError};
 
@@ -112,7 +113,29 @@ pub fn init() -> Result<(), Error> {
     if unsafe { NOCASH_GBA_SIGNATURE_ADDRESS.read_volatile() } != NOCASH_GBA_SIGNATURE {
         return Err(Error::NotRunningInNoCashGba);
     }
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(LevelFilter::Trace))
-        .map_err(Into::into)
+
+    // Disable interrupts, storing the previous value.
+    //
+    // This prevents an interrupt handler from attempting to set a different logger while
+    // `log::set_logger()` is running.
+    //
+    // Compiler fences are used to prevent these function calls from being reordered during
+    // compilation.
+    let previous_ime = unsafe { IME.read_volatile() };
+    // SAFETY: This is guaranteed to be a valid write.
+    unsafe { IME.write_volatile(false) };
+    compiler_fence(atomic::Ordering::Acquire);
+
+    let result = unsafe { log::set_logger_racy(&LOGGER) }
+        .map(|()| unsafe { log::set_max_level_racy(LevelFilter::Trace) })
+        .map_err(Into::into);
+
+    compiler_fence(atomic::Ordering::Release);
+    // Restore previous interrupt enable value.
+    // SAFETY: This is guaranteed to be a valid write.
+    unsafe {
+        IME.write_volatile(previous_ime);
+    }
+
+    result
 }
