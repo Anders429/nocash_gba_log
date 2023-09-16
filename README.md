@@ -1,5 +1,9 @@
 # nocash_gba_log
 
+[![crates.io](https://img.shields.io/crates/v/nocash_gba_log)](https://crates.io/crates/nocash_gba_log)
+[![docs.rs](https://docs.rs/nocash_gba_log/badge.svg)](https://docs.rs/nocash_gba_log)
+[![License](https://img.shields.io/crates/l/nocash_gba_log)](#license)
+
 A logging implementation for no$gba.
 
 Provides a logging implementation for the [`log`](https://docs.rs/log/latest/log/index.html) crate for logging when compiling for the Game Boy Advance and running within the [no$gba](https://problemkaputt.de/gba.htm) emulator.
