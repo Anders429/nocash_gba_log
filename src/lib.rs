@@ -1,3 +1,16 @@
+//! A logging implementation for no$gba.
+//!
+//! Provides a logging implementation for the [`log`] crate for logging when compiling for the Game
+//! Boy Advance and running within the [no$gba](https://problemkaputt.de/gba.htm) emulator.
+//!
+//! # Compatibility
+//! This logger uses memory mapped IO registers specific to the Game Boy Advance. It is therefore
+//! only safe to use this library when building to run on the Game Boy Advance or a Game Boy
+//! Advance emulator.
+//!
+//! If this logger is attempted to be initialized when not running on no$gba, it will fail to
+//! initialize with an [`Error`] identifying the failure.
+
 #![no_std]
 
 use core::{
