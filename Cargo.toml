@@ -1,8 +1,14 @@
 [package]
 name = "nocash_gba_log"
 version = "0.1.0"
+authors = ["Anders Evensen"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/Anders429/nocash_gba_log"
+description = "A logging implementation for no$gba."
+categories = ["development-tools::debugging", "game-development", "no-std", "no-std::no-alloc"]
+keywords = ["log", "logging", "logger", "gba", "nocash"]
 
 [dependencies]
 log = "0.4.18"
