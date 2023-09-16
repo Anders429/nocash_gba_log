@@ -36,3 +36,18 @@ Note that you may want to handle the returned [`Error`](https://docs.rs/nocash_g
 This logger uses memory mapped IO registers specific to the Game Boy Advance. It is therefore only safe to use this library when building to run on the Game Boy Advance or a Game Boy Advance emulator.
 
 If this logger is attempted to be initialized when not running on no$gba, it will fail to initialize with an [`Error`](https://docs.rs/nocash_gba_log/latest/nocash_gba_log/struct.Error.html) identifying the failure.
+
+## License
+This project is licensed under either of
+
+* Apache License, Version 2.0
+([LICENSE-APACHE](https://github.com/Anders429/nocash_gba_log/blob/HEAD/LICENSE-APACHE) or
+http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license
+([LICENSE-MIT](https://github.com/Anders429/nocash_gba_log/blob/HEAD/LICENSE-MIT) or
+http://opensource.org/licenses/MIT)
+
+at your option.
+
+### Contribution
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
