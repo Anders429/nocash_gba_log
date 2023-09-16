@@ -18,6 +18,7 @@ const IME: *mut bool = 0x0400_0208 as *mut bool;
 /// This signature must be returned by the emulator for the logger to be enabled.
 const NOCASH_GBA_SIGNATURE: [u8; 7] = *b"no$gba ";
 
+/// Writes bytes directly to no$gba's debug register.
 #[derive(Debug)]
 struct Writer;
 
@@ -32,6 +33,10 @@ impl Write for Writer {
     }
 }
 
+/// Implements the logging interface for no$gba.
+///
+/// This struct implements `log::Log`, allowing it to be used as a logger with the `log` crate.
+/// Logging can be done using the standard log interface.
 #[derive(Debug)]
 struct Logger;
 
@@ -60,10 +65,19 @@ impl Log for Logger {
     fn flush(&self) {}
 }
 
+/// An error occurring during initialization.
 #[derive(Debug)]
 pub enum Error {
+    /// The program is not running in no$gba.
+    ///
+    /// In many cases, this is a recoverable error. If this variant was returned by [`init()`],
+    /// then the logger was never actually set, meaning a different logger could potentially be set
+    /// instead.
     NotRunningInNoCashGba,
 
+    /// An error returned by `log::set_logger()`.
+    ///
+    /// This most often indicates that another logger has already been set by the program.
     SetLoggerError(SetLoggerError),
 }
 
@@ -82,8 +96,18 @@ impl Display for Error {
     }
 }
 
+/// A static logger instance.
+///
+/// When initializing with [`log::set_logger()`], a static reference to a logger must be provided.
+/// This static logger can be used as the static reference.
 static LOGGER: Logger = Logger;
 
+/// Initialize no$gba logging.
+///
+/// # Errors
+/// This function returns `Ok(())` if the logger was enabled. If the logger was not enabled for any
+/// reason, it instead returns an [`Error`]. See the documentation for [`Error`] for what errors
+/// can occur.
 pub fn init() -> Result<(), Error> {
     if unsafe { NOCASH_GBA_SIGNATURE_ADDRESS.read_volatile() } != NOCASH_GBA_SIGNATURE {
         return Err(Error::NotRunningInNoCashGba);
