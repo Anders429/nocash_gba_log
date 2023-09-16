@@ -10,6 +10,10 @@ use log::{LevelFilter, Log, Metadata, Record, SetLoggerError};
 const NOCASH_GBA_SIGNATURE_ADDRESS: *const [u8; 7] = 0x04FFFA00 as *const [u8; 7];
 /// Address to write log messages to.
 const NOCASH_GBA_DEBUG: *mut u8 = 0x04FFFA1C as *mut u8;
+/// Interrupt Master Enable.
+///
+/// This register allows enabling and disabling interrupts.
+const IME: *mut bool = 0x0400_0208 as *mut bool;
 
 /// This signature must be returned by the emulator for the logger to be enabled.
 const NOCASH_GBA_SIGNATURE: [u8; 7] = *b"no$gba ";
@@ -37,8 +41,20 @@ impl Log for Logger {
     }
 
     fn log(&self, record: &Record) {
+        // Disable interrupts, storing the previous value.
+        //
+        // This prevents synchronization issues when messages are logged in interrupt handling.
+        // Interrupts triggered during this time will be handled when interrupts are reenabled.
+        let previous_ime = unsafe { IME.read_volatile() };
+        unsafe { IME.write_volatile(false) };
+
         write!(Writer, "[{:<5}]: {}\n", record.level(), record.args())
             .unwrap_or_else(|error| panic!("write to no$gba debug buffer failed: {}", error));
+
+        // Restore previous interrupt enable value.
+        unsafe {
+            IME.write_volatile(previous_ime);
+        }
     }
 
     fn flush(&self) {}
